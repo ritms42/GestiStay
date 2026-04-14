@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/card"
 import { Loader2, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
+import { PhoneAuth } from "@/components/auth/phone-auth"
 
 function LoginForm() {
   const router = useRouter()
@@ -29,6 +30,7 @@ function LoginForm() {
   const [mfaRequired, setMfaRequired] = useState(false)
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null)
   const [mfaCode, setMfaCode] = useState("")
+  const [phoneMode, setPhoneMode] = useState(false)
   const supabase = createClient()
 
   const {
@@ -118,6 +120,30 @@ function LoginForm() {
     })
     if (error) {
       toast.error("Erreur lors de la connexion avec Google")
+    }
+  }
+
+  async function handleAppleLogin() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: {
+        redirectTo: `${window.location.origin}/api/auth/callback?redirect=${redirect}`,
+      },
+    })
+    if (error) {
+      toast.error("Erreur lors de la connexion avec Apple")
+    }
+  }
+
+  async function handleFacebookLogin() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "facebook",
+      options: {
+        redirectTo: `${window.location.origin}/api/auth/callback?redirect=${redirect}`,
+      },
+    })
+    if (error) {
+      toast.error("Erreur lors de la connexion avec Facebook")
     }
   }
 
@@ -211,6 +237,26 @@ function LoginForm() {
           Continuer avec Google
         </Button>
 
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleAppleLogin}
+          type="button"
+        >
+          <svg viewBox="0 0 24 24" className="mr-2 h-4 w-4"><path fill="currentColor" d="M17.05 12.04c-.03-2.73 2.23-4.05 2.33-4.11-1.27-1.85-3.25-2.11-3.95-2.14-1.68-.17-3.28.99-4.14.99-.86 0-2.18-.96-3.58-.93-1.84.03-3.54 1.07-4.49 2.72-1.91 3.32-.49 8.24 1.37 10.93.91 1.32 1.99 2.8 3.4 2.75 1.36-.05 1.88-.88 3.53-.88 1.64 0 2.11.88 3.55.85 1.47-.02 2.39-1.35 3.29-2.67 1.04-1.53 1.47-3.01 1.49-3.09-.03-.01-2.84-1.09-2.87-4.33zM14.3 4.4c.75-.91 1.25-2.18 1.11-3.44-1.07.04-2.37.72-3.15 1.62-.69.8-1.3 2.08-1.14 3.32 1.19.09 2.42-.6 3.18-1.5z"/></svg>
+          Continuer avec Apple
+        </Button>
+
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleFacebookLogin}
+          type="button"
+        >
+          <svg viewBox="0 0 24 24" className="mr-2 h-4 w-4"><path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Continuer avec Facebook
+        </Button>
+
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -218,6 +264,20 @@ function LoginForm() {
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-card px-2 text-muted-foreground">ou</span>
           </div>
+        </div>
+
+        {phoneMode ? (
+          <PhoneAuth mode="signin" onCancel={() => setPhoneMode(false)} />
+        ) : (
+        <>
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => setPhoneMode(true)}
+            className="text-sm text-primary hover:underline"
+          >
+            Se connecter par SMS
+          </button>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -262,6 +322,8 @@ function LoginForm() {
             Se connecter
           </Button>
         </form>
+        </>
+        )}
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">

@@ -7,9 +7,19 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Upload, ShieldCheck, ShieldAlert, Clock, ShieldX, KeyRound } from "lucide-react"
+import { Loader2, Upload, ShieldCheck, ShieldAlert, Clock, ShieldX, KeyRound, Link2, Mail, Phone as PhoneIcon } from "lucide-react"
 import { toast } from "sonner"
 import type { KycStatus } from "@/types"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { PhoneAuth } from "@/components/auth/phone-auth"
+import type { UserIdentity } from "@supabase/supabase-js"
 
 const kycConfig: Record<
   KycStatus,
@@ -45,6 +55,11 @@ export default function SettingsPage() {
   const [mfaVerifyCode, setMfaVerifyCode] = useState("")
   const [mfaChecking, setMfaChecking] = useState(true)
 
+  // Connected accounts state
+  const [identities, setIdentities] = useState<UserIdentity[]>([])
+  const [linkedPhone, setLinkedPhone] = useState<string | null>(null)
+  const [phoneDialogOpen, setPhoneDialogOpen] = useState(false)
+
   useEffect(() => {
     async function fetchProfile() {
       const {
@@ -71,6 +86,15 @@ export default function SettingsPage() {
       }
     }
 
+    async function fetchIdentities() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) return
+      setIdentities(user.identities || [])
+      setLinkedPhone(user.phone || null)
+    }
+
     async function checkMfaStatus() {
       setMfaChecking(true)
       const { data } = await supabase.auth.mfa.listFactors()
@@ -84,7 +108,19 @@ export default function SettingsPage() {
 
     fetchProfile()
     checkMfaStatus()
+    fetchIdentities()
   }, [supabase])
+
+  const providerLabels: Record<string, { label: string; icon: typeof Mail }> = {
+    email: { label: "Email", icon: Mail },
+    google: { label: "Google", icon: Link2 },
+    apple: { label: "Apple", icon: Link2 },
+    facebook: { label: "Facebook", icon: Link2 },
+    phone: { label: "Téléphone", icon: PhoneIcon },
+  }
+  const linkedProviders = new Set(identities.map((i) => i.provider))
+  if (linkedPhone) linkedProviders.add("phone")
+  const allProviders: Array<keyof typeof providerLabels> = ["email", "google", "apple", "facebook", "phone"]
 
   async function handleSave() {
     setLoading(true)
@@ -308,6 +344,88 @@ export default function SettingsPage() {
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Enregistrer
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Connected Accounts Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Link2 className="h-5 w-5" />
+            Comptes connectés
+          </CardTitle>
+          <CardDescription>
+            Méthodes de connexion liées à votre compte
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {allProviders.map((provider) => {
+            const meta = providerLabels[provider]
+            const Icon = meta.icon
+            const isLinked = linkedProviders.has(provider)
+            return (
+              <div
+                key={provider}
+                className="flex items-center justify-between p-3 rounded-lg border"
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">{meta.label}</p>
+                    {provider === "phone" && linkedPhone && (
+                      <p className="text-xs text-muted-foreground">
+                        {linkedPhone}
+                      </p>
+                    )}
+                    {provider === "email" && profile.email && (
+                      <p className="text-xs text-muted-foreground">
+                        {profile.email}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {isLinked ? (
+                  <Badge variant="default">
+                    <ShieldCheck className="h-3 w-3 mr-1" />
+                    Connecté
+                  </Badge>
+                ) : (
+                  <Badge variant="outline">Non connecté</Badge>
+                )}
+              </div>
+            )
+          })}
+
+          {!linkedPhone && (
+            <Dialog open={phoneDialogOpen} onOpenChange={setPhoneDialogOpen}>
+              <DialogTrigger
+                render={
+                  <Button variant="outline" className="w-full">
+                    <PhoneIcon className="mr-2 h-4 w-4" />
+                    Ajouter un numéro de téléphone
+                  </Button>
+                }
+              />
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Ajouter un numéro de téléphone</DialogTitle>
+                  <DialogDescription>
+                    Liez un numéro de téléphone à votre compte pour la connexion par SMS.
+                  </DialogDescription>
+                </DialogHeader>
+                <PhoneAuth
+                  mode="link"
+                  onSuccess={async () => {
+                    setPhoneDialogOpen(false)
+                    const {
+                      data: { user },
+                    } = await supabase.auth.getUser()
+                    if (user) setLinkedPhone(user.phone || null)
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
         </CardContent>
       </Card>
 
