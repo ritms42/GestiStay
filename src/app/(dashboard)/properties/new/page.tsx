@@ -29,6 +29,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
+import { Separator } from "@/components/ui/separator"
 import { Loader2, ArrowLeft, ArrowRight } from "lucide-react"
 import { toast } from "sonner"
 import { PhotoUploader } from "@/components/properties/photo-uploader"
@@ -75,6 +76,11 @@ export default function NewPropertyPage() {
       amenities: [],
       check_in_time: "15:00",
       check_out_time: "11:00",
+      cancellation_policy: "moderate",
+      instant_book: false,
+      min_nights: 1,
+      max_nights: 365,
+      preparation_days: 0,
     },
   })
 
@@ -447,6 +453,96 @@ export default function NewPropertyPage() {
                   rows={6}
                   {...register("house_rules")}
                 />
+              </div>
+
+              <Separator />
+
+              <div className="space-y-2">
+                <Label htmlFor="cancellation_policy">
+                  Politique d&apos;annulation
+                </Label>
+                <Select
+                  defaultValue="moderate"
+                  onValueChange={(v) =>
+                    setValue(
+                      "cancellation_policy",
+                      v as "flexible" | "moderate" | "strict"
+                    )
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="flexible">
+                      Flexible - Remboursement intégral 24h avant
+                    </SelectItem>
+                    <SelectItem value="moderate">
+                      Modérée - Remboursement intégral 5 jours avant
+                    </SelectItem>
+                    <SelectItem value="strict">
+                      Stricte - 50% remboursé 7 jours avant
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="instant_book">
+                    Réservation instantanée
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Les voyageurs peuvent réserver sans approbation
+                  </p>
+                </div>
+                <Switch
+                  id="instant_book"
+                  checked={watch("instant_book") || false}
+                  onCheckedChange={(checked) =>
+                    setValue("instant_book", checked)
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="min_nights">Nuits minimum</Label>
+                  <Input
+                    id="min_nights"
+                    type="number"
+                    min={1}
+                    max={365}
+                    {...register("min_nights", { valueAsNumber: true })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="max_nights">Nuits maximum</Label>
+                  <Input
+                    id="max_nights"
+                    type="number"
+                    min={1}
+                    max={365}
+                    {...register("max_nights", { valueAsNumber: true })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="preparation_days">
+                    Jours de préparation
+                  </Label>
+                  <Input
+                    id="preparation_days"
+                    type="number"
+                    min={0}
+                    max={30}
+                    {...register("preparation_days", {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Temps entre deux réservations
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

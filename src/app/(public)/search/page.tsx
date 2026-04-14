@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, MapPin } from "lucide-react"
+import { Search } from "lucide-react"
+import { CityAutocomplete } from "@/components/search/city-autocomplete"
 import { SearchResults } from "@/components/search/search-results"
 import type { Property, PropertyImage, Pricing } from "@/types"
 
@@ -96,13 +97,11 @@ export default async function SearchPage({
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 py-3">
           <form className="flex flex-col md:flex-row gap-2.5">
-            <div className="flex-1 relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
+            <div className="flex-1">
+              <CityAutocomplete
                 name="city"
-                defaultValue={params.city}
+                defaultValue={params.city || ""}
                 placeholder="Ville..."
-                className="pl-10"
               />
             </div>
             <Input

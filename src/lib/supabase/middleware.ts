@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
   // Protected routes
   const protectedRoutes = ['/dashboard', '/properties', '/reservations', '/messages', '/revenue', '/subscription', '/settings', '/trips']
   const adminRoutes = ['/admin']
-  const authRoutes = ['/login', '/register']
+  const authRoutes = ['/login', '/register', '/forgot-password']
 
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))

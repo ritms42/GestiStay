@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "@/components/ui/sonner"
+import { CookieConsent } from "@/components/layout/cookie-consent"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -73,6 +74,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         {children}
+        <CookieConsent />
         <Toaster richColors position="top-right" />
         <script
           dangerouslySetInnerHTML={{

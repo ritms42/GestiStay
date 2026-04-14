@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { rateLimit } from "@/lib/rate-limit"
 import crypto from "crypto"
 
 async function authenticateApiKey(request: Request) {
@@ -25,6 +26,15 @@ async function authenticateApiKey(request: Request) {
 
 // GET /api/v1/bookings - List bookings
 export async function GET(request: Request) {
+  const ip = request.headers.get("x-forwarded-for") || "anonymous"
+  const { success, retryAfter } = rateLimit(`bookings-get:${ip}`, 60, 60_000)
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests", retry_after: retryAfter },
+      { status: 429 }
+    )
+  }
+
   const apiKeyData = await authenticateApiKey(request)
   if (!apiKeyData) {
     return NextResponse.json({ error: "Invalid or missing API key" }, { status: 401 })

@@ -22,6 +22,7 @@ import {
   LayoutDashboard,
   Plane,
   MessageSquare,
+  Heart,
 } from "lucide-react"
 import type { Profile } from "@/types"
 
@@ -114,6 +115,10 @@ export function Header() {
                   <Plane className="mr-2 h-4 w-4" />
                   Mes voyages
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/favorites")}>
+                  <Heart className="mr-2 h-4 w-4" />
+                  Mes favoris
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/messages")}>
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Messages
@@ -181,6 +186,13 @@ export function Header() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Mes voyages
+              </Link>
+              <Link
+                href="/favorites"
+                className="block text-sm font-medium py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Mes favoris
               </Link>
               <Link
                 href="/messages"

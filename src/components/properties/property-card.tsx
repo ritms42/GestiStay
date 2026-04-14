@@ -23,6 +23,7 @@ import {
   Play,
 } from "lucide-react"
 import type { Property, PropertyImage, Pricing } from "@/types"
+import { FavoriteButton } from "@/components/properties/favorite-button"
 
 interface PropertyCardProps {
   property: Property & {
@@ -73,6 +74,14 @@ export function PropertyCard({ property, variant = "host" }: PropertyCardProps) 
           <Badge className="absolute top-3 left-3" variant={status.variant}>
             {status.label}
           </Badge>
+        )}
+        {variant === "public" && (
+          <div className="absolute top-2 right-2 z-10">
+            <FavoriteButton
+              propertyId={property.id}
+              className="bg-white/80 hover:bg-white/90 backdrop-blur-sm shadow-sm"
+            />
+          </div>
         )}
         {variant === "public" && property.pricing?.[0] && (
           <div className="absolute bottom-3 right-3 bg-background/90 backdrop-blur px-3 py-1.5 rounded-lg font-semibold text-sm">

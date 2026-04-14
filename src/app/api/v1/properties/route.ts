@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { rateLimit } from "@/lib/rate-limit"
 import crypto from "crypto"
 
 // Verify API key
@@ -33,6 +34,15 @@ async function authenticateApiKey(request: Request) {
 
 // GET /api/v1/properties - List properties
 export async function GET(request: Request) {
+  const ip = request.headers.get("x-forwarded-for") || "anonymous"
+  const { success, retryAfter } = rateLimit(`properties-get:${ip}`, 60, 60_000)
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests", retry_after: retryAfter },
+      { status: 429 }
+    )
+  }
+
   const apiKeyData = await authenticateApiKey(request)
   if (!apiKeyData) {
     return NextResponse.json({ error: "Invalid or missing API key" }, { status: 401 })
@@ -82,6 +92,15 @@ export async function GET(request: Request) {
 
 // POST /api/v1/properties - Create a property
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for") || "anonymous"
+  const { success, retryAfter } = rateLimit(`properties-post:${ip}`, 20, 60_000)
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests", retry_after: retryAfter },
+      { status: 429 }
+    )
+  }
+
   const apiKeyData = await authenticateApiKey(request)
   if (!apiKeyData) {
     return NextResponse.json({ error: "Invalid or missing API key" }, { status: 401 })

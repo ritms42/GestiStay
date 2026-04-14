@@ -4,6 +4,7 @@ export type PropertyType = 'apartment' | 'house' | 'villa' | 'studio' | 'room' |
 export type PropertyStatus = 'draft' | 'published' | 'paused' | 'archived'
 export type BookingStatus = 'pending' | 'confirmed' | 'canceled' | 'completed'
 export type AvailabilityStatus = 'available' | 'blocked' | 'booked'
+export type CancellationPolicy = 'flexible' | 'moderate' | 'strict'
 
 export interface Profile {
   id: string
@@ -49,6 +50,11 @@ export interface Property {
   check_in_time: string | null
   check_out_time: string | null
   status: PropertyStatus
+  cancellation_policy: CancellationPolicy
+  instant_book: boolean
+  min_nights: number
+  max_nights: number
+  preparation_days: number
   created_at: string
   updated_at: string
   // Relations
@@ -101,12 +107,27 @@ export interface Booking {
   cleaning_fee: number
   status: BookingStatus
   stripe_payment_intent_id: string | null
+  original_check_in: string | null
+  original_check_out: string | null
+  modified_at: string | null
+  cancellation_reason: string | null
+  canceled_at: string | null
+  refund_amount: number | null
   created_at: string
   updated_at: string
   // Relations
   property?: Property
   guest?: Profile
   host?: Profile
+}
+
+export interface Favorite {
+  id: string
+  user_id: string
+  property_id: string
+  created_at: string
+  // Relations
+  property?: Property
 }
 
 export interface Conversation {

@@ -18,7 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
+import { Loader2, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 
 function LoginForm() {
@@ -26,6 +26,9 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const redirect = searchParams.get("redirect") || "/dashboard"
   const [loading, setLoading] = useState(false)
+  const [mfaRequired, setMfaRequired] = useState(false)
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null)
+  const [mfaCode, setMfaCode] = useState("")
   const supabase = createClient()
 
   const {
@@ -38,13 +41,65 @@ function LoginForm() {
 
   async function onSubmit(data: LoginInput) {
     setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     })
 
     if (error) {
       toast.error("Email ou mot de passe incorrect")
+      setLoading(false)
+      return
+    }
+
+    // Check if MFA is required
+    if (
+      signInData.session === null &&
+      signInData.user === null
+    ) {
+      // MFA challenge needed - get the factors
+      const { data: factorsData } = await supabase.auth.mfa.listFactors()
+      const totpFactor = factorsData?.totp?.[0]
+
+      if (totpFactor) {
+        setMfaFactorId(totpFactor.id)
+        setMfaRequired(true)
+        setLoading(false)
+        return
+      }
+    }
+
+    toast.success("Connexion réussie")
+    router.push(redirect)
+    router.refresh()
+  }
+
+  async function handleMfaVerify(e: React.FormEvent) {
+    e.preventDefault()
+
+    if (!mfaFactorId || mfaCode.length !== 6) {
+      toast.error("Veuillez entrer un code à 6 chiffres")
+      return
+    }
+
+    setLoading(true)
+    const { data: challengeData, error: challengeError } =
+      await supabase.auth.mfa.challenge({ factorId: mfaFactorId })
+
+    if (challengeError) {
+      toast.error("Erreur lors de la vérification MFA")
+      setLoading(false)
+      return
+    }
+
+    const { error: verifyError } = await supabase.auth.mfa.verify({
+      factorId: mfaFactorId,
+      challengeId: challengeData.id,
+      code: mfaCode,
+    })
+
+    if (verifyError) {
+      toast.error("Code invalide")
       setLoading(false)
       return
     }
@@ -64,6 +119,60 @@ function LoginForm() {
     if (error) {
       toast.error("Erreur lors de la connexion avec Google")
     }
+  }
+
+  if (mfaRequired) {
+    return (
+      <Card>
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-2">
+            <ShieldCheck className="h-10 w-10 text-primary" />
+          </div>
+          <CardTitle className="text-2xl">Vérification en deux étapes</CardTitle>
+          <CardDescription>
+            Entrez le code à 6 chiffres de votre application d&apos;authentification
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleMfaVerify} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="mfa-code">Code de vérification</Label>
+              <Input
+                id="mfa-code"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                placeholder="000000"
+                value={mfaCode}
+                onChange={(e) =>
+                  setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+                autoFocus
+              />
+            </div>
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Vérifier
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="justify-center">
+          <button
+            type="button"
+            onClick={() => {
+              setMfaRequired(false)
+              setMfaCode("")
+              setMfaFactorId(null)
+            }}
+            className="text-sm text-muted-foreground hover:underline"
+          >
+            Retour à la connexion
+          </button>
+        </CardFooter>
+      </Card>
+    )
   }
 
   return (
@@ -126,7 +235,15 @@ function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-primary hover:underline"
+              >
+                Mot de passe oublié ?
+              </Link>
+            </div>
             <Input
               id="password"
               type="password"

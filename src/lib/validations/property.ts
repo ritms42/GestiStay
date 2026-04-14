@@ -18,6 +18,11 @@ export const propertySchema = z.object({
   house_rules: z.string().max(2000).optional(),
   check_in_time: z.string().optional(),
   check_out_time: z.string().optional(),
+  cancellation_policy: z.enum(['flexible', 'moderate', 'strict']).optional().default('moderate'),
+  instant_book: z.boolean().optional().default(false),
+  min_nights: z.number().min(1, 'Au moins 1 nuit').max(365).optional().default(1),
+  max_nights: z.number().min(1).max(365).optional().default(365),
+  preparation_days: z.number().min(0).max(30).optional().default(0),
 })
 
 export const pricingSchema = z.object({

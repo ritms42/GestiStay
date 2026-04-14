@@ -9,6 +9,7 @@ import {
   Building2,
   CalendarDays,
   MessageSquare,
+  BotMessageSquare,
   BarChart3,
   CreditCard,
   Settings,
@@ -45,6 +46,11 @@ const navItems = [
     title: "Messages",
     href: "/messages",
     icon: MessageSquare,
+  },
+  {
+    title: "Messages auto",
+    href: "/auto-messages",
+    icon: BotMessageSquare,
   },
   {
     title: "Check-ins",

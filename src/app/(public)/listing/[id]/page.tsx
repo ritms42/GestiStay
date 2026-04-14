@@ -18,6 +18,8 @@ import {
 import { BookingWidget } from "@/components/booking/booking-widget"
 import { ReviewList } from "@/components/reviews/review-list"
 import { PhotoGallery } from "@/components/properties/photo-gallery"
+import { ShareButton } from "@/components/properties/share-button"
+import { FavoriteButton } from "@/components/properties/favorite-button"
 
 export async function generateMetadata({
   params,
@@ -156,7 +158,13 @@ export default async function ListingPage({
         <div className="lg:col-span-2 space-y-8">
           {/* Title and location */}
           <div>
-            <h1 className="text-3xl font-bold">{property.title}</h1>
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-3xl font-bold">{property.title}</h1>
+              <div className="flex items-center gap-1 shrink-0 mt-1">
+                <FavoriteButton propertyId={property.id} />
+                <ShareButton title={property.title} />
+              </div>
+            </div>
             <p className="text-muted-foreground flex items-center gap-1 mt-2">
               <MapPin className="h-4 w-4" />
               {property.city}, {property.country}
@@ -294,6 +302,10 @@ export default async function ListingPage({
               cleaningFee={pricing?.cleaning_fee || 0}
               currency={pricing?.currency || "EUR"}
               maxGuests={property.max_guests}
+              cancellationPolicy={property.cancellation_policy || "moderate"}
+              instantBook={property.instant_book || false}
+              minNights={property.min_nights || 1}
+              maxNights={property.max_nights || 365}
             />
 
             {/* Trust badges */}

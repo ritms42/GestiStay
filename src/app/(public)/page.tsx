@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { CityAutocomplete } from "@/components/search/city-autocomplete"
 import {
   Search,
   Shield,
@@ -33,12 +34,11 @@ export default function HomePage() {
               action="/search"
               className="flex flex-col sm:flex-row gap-3 bg-card p-3 rounded-xl shadow-lg border"
             >
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
+              <div className="flex-1">
+                <CityAutocomplete
                   name="city"
                   placeholder="Où allez-vous ?"
-                  className="pl-10 border-0 shadow-none focus-visible:ring-0"
+                  className="w-full"
                 />
               </div>
               <Input

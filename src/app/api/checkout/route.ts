@@ -2,9 +2,19 @@ import { NextResponse } from "next/server"
 import { stripe } from "@/lib/stripe/client"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { rateLimit } from "@/lib/rate-limit"
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || "anonymous"
+    const { success, retryAfter } = rateLimit(`checkout:${ip}`, 10, 60_000)
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests", retry_after: retryAfter },
+        { status: 429 }
+      )
+    }
+
     const supabase = await createClient()
     const {
       data: { user },
