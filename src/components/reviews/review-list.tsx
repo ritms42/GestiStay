@@ -32,6 +32,7 @@ export function ReviewList({ propertyId, showSummary = true }: ReviewListProps) 
         .from("reviews")
         .select("*, guest:profiles!reviews_guest_id_fkey(full_name, avatar_url)")
         .eq("property_id", propertyId)
+        .eq("reviewer_type", "guest")
         .order("created_at", { ascending: false })
 
       setReviews((data as unknown as Review[]) || [])

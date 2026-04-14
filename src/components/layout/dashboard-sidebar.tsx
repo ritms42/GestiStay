@@ -18,6 +18,9 @@ import {
   ClipboardCheck,
   Receipt,
   Key,
+  Wallet,
+  HelpCircle,
+  Star,
 } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -54,9 +57,19 @@ const navItems = [
     icon: Tag,
   },
   {
+    title: "Avis",
+    href: "/reviews",
+    icon: Star,
+  },
+  {
     title: "Revenus",
     href: "/revenue",
     icon: BarChart3,
+  },
+  {
+    title: "Paiements",
+    href: "/payouts",
+    icon: Wallet,
   },
   {
     title: "Comptabilité",
@@ -72,6 +85,11 @@ const navItems = [
     title: "API",
     href: "/api-keys",
     icon: Key,
+  },
+  {
+    title: "Support",
+    href: "/support",
+    icon: HelpCircle,
   },
   {
     title: "Paramètres",

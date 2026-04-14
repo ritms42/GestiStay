@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,6 +17,7 @@ import {
 } from "lucide-react"
 import { BookingWidget } from "@/components/booking/booking-widget"
 import { ReviewList } from "@/components/reviews/review-list"
+import { PhotoGallery } from "@/components/properties/photo-gallery"
 
 export async function generateMetadata({
   params,
@@ -85,31 +84,71 @@ export default async function ListingPage({
   const pricing = property.pricing?.[0]
   const host = property.host as Record<string, unknown>
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://gestistay.com"
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "VacationRental",
+    name: property.title,
+    description: property.description || "",
+    url: `${baseUrl}/listing/${property.id}`,
+    image: images.map((img: Record<string, unknown>) => img.url as string),
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: property.city || "",
+      addressCountry: property.country || "",
+      streetAddress: property.address || "",
+    },
+    ...(property.latitude && property.longitude
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: property.latitude,
+            longitude: property.longitude,
+          },
+        }
+      : {}),
+    numberOfRooms: property.bedrooms || 0,
+    occupancy: {
+      "@type": "QuantitativeValue",
+      maxValue: property.max_guests || 1,
+    },
+    ...(pricing
+      ? {
+          priceRange: `${pricing.base_price} ${pricing.currency || "EUR"}`,
+          offers: {
+            "@type": "Offer",
+            price: pricing.base_price,
+            priceCurrency: pricing.currency || "EUR",
+            availability: "https://schema.org/InStock",
+          },
+        }
+      : {}),
+    ...(host
+      ? {
+          provider: {
+            "@type": "Person",
+            name: host.full_name as string,
+          },
+        }
+      : {}),
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Photo gallery */}
       {images.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 rounded-xl overflow-hidden mb-8">
-          <div className="md:col-span-2 md:row-span-2 relative aspect-[4/3]">
-            <Image
-              src={(images[0] as Record<string, unknown>).url as string}
-              alt={property.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-          {images.slice(1, 5).map((img: Record<string, unknown>, i: number) => (
-            <div key={img.id as string} className="relative aspect-[4/3] hidden md:block">
-              <Image
-                src={img.url as string}
-                alt={`${property.title} - ${i + 2}`}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
+        <PhotoGallery
+          images={images.map((img: Record<string, unknown>) => ({
+            id: img.id as string,
+            url: img.url as string,
+          }))}
+          title={property.title}
+        />
       )}
 
       <div className="grid lg:grid-cols-3 gap-8">

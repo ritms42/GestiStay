@@ -27,6 +27,7 @@ import {
   ClipboardCheck,
   Receipt,
   Key,
+  Wallet,
 } from "lucide-react"
 import { NotificationBell } from "@/components/notifications/notification-bell"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -43,6 +44,7 @@ const navItems = [
   { title: "Check-ins", href: "/checkins", icon: ClipboardCheck },
   { title: "Promotions", href: "/promotions", icon: Tag },
   { title: "Revenus", href: "/revenue", icon: BarChart3 },
+  { title: "Paiements", href: "/payouts", icon: Wallet },
   { title: "Comptabilité", href: "/accounting", icon: Receipt },
   { title: "Abonnement", href: "/subscription", icon: CreditCard },
   { title: "API", href: "/api-keys", icon: Key },

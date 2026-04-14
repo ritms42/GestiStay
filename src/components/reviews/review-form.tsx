@@ -51,6 +51,7 @@ export function ReviewForm({
         property_id: propertyId,
         guest_id: user.id,
         host_id: hostId,
+        reviewer_type: "guest",
         rating,
         cleanliness: cleanliness || null,
         communication: communication || null,

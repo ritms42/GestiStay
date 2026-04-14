@@ -13,8 +13,17 @@ export interface Profile {
   phone: string | null
   role: UserRole
   stripe_customer_id: string | null
+  stripe_account_id: string | null
   subscription_status: SubscriptionStatus
   subscription_plan: string | null
+  kyc_status: KycStatus
+  kyc_document_url: string | null
+  kyc_verified_at: string | null
+  kyc_rejection_reason: string | null
+  bio: string | null
+  languages: string[]
+  response_rate: number | null
+  response_time: string | null
   created_at: string
   updated_at: string
 }
@@ -125,6 +134,8 @@ export interface Message {
 }
 
 // Phase 2
+export type ReviewerType = 'guest' | 'host'
+export type KycStatus = 'none' | 'pending' | 'verified' | 'rejected'
 export type PromotionType = 'percentage' | 'fixed' | 'early_bird' | 'last_minute' | 'weekly' | 'monthly'
 export type NotificationType = 'booking_new' | 'booking_confirmed' | 'booking_canceled' | 'review_new' | 'review_reply' | 'message_new' | 'payment_received' | 'promotion_expiring'
 
@@ -134,6 +145,7 @@ export interface Review {
   property_id: string
   guest_id: string
   host_id: string
+  reviewer_type: ReviewerType
   rating: number
   cleanliness: number | null
   communication: number | null
@@ -146,8 +158,15 @@ export interface Review {
   updated_at: string
   // Relations
   guest?: Profile
+  host?: Profile
   property?: Property
   booking?: Booking
+}
+
+export interface GuestRating {
+  guest_id: string
+  review_count: number
+  avg_rating: number
 }
 
 export interface PropertyRating {

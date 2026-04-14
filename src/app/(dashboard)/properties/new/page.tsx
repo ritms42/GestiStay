@@ -29,9 +29,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
-import { Loader2, Upload, X, ArrowLeft, ArrowRight } from "lucide-react"
+import { Loader2, ArrowLeft, ArrowRight } from "lucide-react"
 import { toast } from "sonner"
-import Image from "next/image"
+import { PhotoUploader } from "@/components/properties/photo-uploader"
 
 const STEPS = [
   { id: "basics", title: "Informations de base" },
@@ -56,7 +56,6 @@ export default function NewPropertyPage() {
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [photos, setPhotos] = useState<File[]>([])
-  const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
 
   const {
@@ -78,19 +77,6 @@ export default function NewPropertyPage() {
       check_out_time: "11:00",
     },
   })
-
-  function handlePhotoAdd(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files || [])
-    setPhotos((prev) => [...prev, ...files])
-    files.forEach((file) => {
-      setPhotoUrls((prev) => [...prev, URL.createObjectURL(file)])
-    })
-  }
-
-  function removePhoto(index: number) {
-    setPhotos((prev) => prev.filter((_, i) => i !== index))
-    setPhotoUrls((prev) => prev.filter((_, i) => i !== index))
-  }
 
   function toggleAmenity(id: string) {
     setSelectedAmenities((prev) =>
@@ -415,44 +401,11 @@ export default function NewPropertyPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {photoUrls.map((url, i) => (
-                  <div key={i} className="relative aspect-[4/3] rounded-lg overflow-hidden border">
-                    <Image
-                      src={url}
-                      alt={`Photo ${i + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                    {i === 0 && (
-                      <span className="absolute top-2 left-2 text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-                        Couverture
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removePhoto(i)}
-                      className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-
-                <label className="flex flex-col items-center justify-center aspect-[4/3] rounded-lg border-2 border-dashed cursor-pointer hover:border-primary/50 transition-colors">
-                  <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                  <span className="text-sm text-muted-foreground">
-                    Ajouter des photos
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handlePhotoAdd}
-                  />
-                </label>
-              </div>
+              <PhotoUploader
+                onPhotosChange={(newPhotos) => {
+                  setPhotos(newPhotos)
+                }}
+              />
             </CardContent>
           </Card>
         )}

@@ -64,70 +64,34 @@ function BookForm() {
         return
       }
 
-      // Create booking
-      const { data: booking, error } = await supabase
-        .from("bookings")
-        .insert({
+      // Create a Stripe Checkout session via API
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           property_id: id,
-          guest_id: user.id,
-          host_id: property?.host_id,
           check_in: checkIn,
           check_out: checkOut,
-          guests_count: guests,
-          total_price: total,
+          guests,
+          total,
           cleaning_fee: cleaningFee,
-          status: "confirmed", // In production: use Stripe payment intent
-        })
-        .select()
-        .single()
+        }),
+      })
 
-      if (error) throw error
+      const data = await res.json()
 
-      // Block dates in availability
-      const dates = []
-      const current = new Date(checkIn)
-      const end = new Date(checkOut)
-      while (current < end) {
-        dates.push({
-          property_id: id,
-          date: current.toISOString().split("T")[0],
-          status: "booked" as const,
-          booking_id: booking.id,
-        })
-        current.setDate(current.getDate() + 1)
+      if (!res.ok) {
+        throw new Error(data.error || "Erreur lors de la création du paiement")
       }
 
-      await supabase
-        .from("availability")
-        .upsert(dates, { onConflict: "property_id,date" })
-
-      // Create conversation
-      const { data: conversation } = await supabase
-        .from("conversations")
-        .insert({
-          booking_id: booking.id,
-          property_id: id,
-        })
-        .select()
-        .single()
-
-      if (conversation) {
-        await supabase.from("conversation_participants").insert([
-          { conversation_id: conversation.id, user_id: user.id },
-          { conversation_id: conversation.id, user_id: property?.host_id },
-        ])
-
-        await supabase.from("messages").insert({
-          conversation_id: conversation.id,
-          sender_id: user.id,
-          content: `Réservation confirmée du ${new Date(checkIn).toLocaleDateString("fr-FR")} au ${new Date(checkOut).toLocaleDateString("fr-FR")} pour ${guests} voyageur(s).`,
-        })
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error("URL de paiement non disponible")
       }
-
-      toast.success("Réservation confirmée !")
-      router.push("/trips")
     } catch (err) {
-      toast.error("Erreur lors de la réservation")
+      toast.error(err instanceof Error ? err.message : "Erreur lors de la réservation")
       console.error(err)
     } finally {
       setLoading(false)
