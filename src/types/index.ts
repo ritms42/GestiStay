@@ -233,6 +233,37 @@ export interface Notification {
   created_at: string
 }
 
+export type ChannelType = 'airbnb' | 'booking' | 'vrbo' | 'other'
+export type SyncStatus = 'pending' | 'syncing' | 'success' | 'error'
+
+export interface Channel {
+  id: string
+  property_id: string
+  host_id: string
+  type: ChannelType
+  name: string
+  ical_import_url: string | null
+  ical_export_token: string
+  last_import_at: string | null
+  last_import_status: SyncStatus
+  last_import_error: string | null
+  last_import_events_count: number
+  auto_sync_enabled: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface ExternalBooking {
+  id: string
+  channel_id: string
+  property_id: string
+  external_uid: string
+  summary: string | null
+  check_in: string
+  check_out: string
+  synced_at: string
+}
+
 export interface PricingRule {
   id: string
   property_id: string
