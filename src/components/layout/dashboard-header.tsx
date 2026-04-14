@@ -28,6 +28,7 @@ import {
   Receipt,
   Key,
   Wallet,
+  Sparkles,
 } from "lucide-react"
 import { NotificationBell } from "@/components/notifications/notification-bell"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -43,6 +44,7 @@ const navItems = [
   { title: "Messages", href: "/messages", icon: MessageSquare },
   { title: "Check-ins", href: "/checkins", icon: ClipboardCheck },
   { title: "Promotions", href: "/promotions", icon: Tag },
+  { title: "Smart Pricing", href: "/smart-pricing", icon: Sparkles },
   { title: "Revenus", href: "/revenue", icon: BarChart3 },
   { title: "Paiements", href: "/payouts", icon: Wallet },
   { title: "Comptabilité", href: "/accounting", icon: Receipt },

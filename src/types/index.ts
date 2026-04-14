@@ -232,3 +232,24 @@ export interface Notification {
   data: Record<string, unknown>
   created_at: string
 }
+
+export interface PricingRule {
+  id: string
+  property_id: string
+  host_id: string
+  enabled: boolean
+  min_price: number
+  max_price: number
+  weekend_uplift_percent: number
+  last_minute_days: number
+  last_minute_discount_percent: number
+  early_bird_days: number
+  early_bird_discount_percent: number
+  weekly_discount_percent: number
+  monthly_discount_percent: number
+  high_demand_threshold_percent: number
+  high_demand_uplift_percent: number
+  gap_night_discount_percent: number
+  created_at: string
+  updated_at: string
+}
