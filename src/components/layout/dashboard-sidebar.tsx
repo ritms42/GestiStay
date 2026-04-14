@@ -22,6 +22,7 @@ import {
   Wallet,
   HelpCircle,
   Star,
+  Sparkles,
 } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -61,6 +62,11 @@ const navItems = [
     title: "Promotions",
     href: "/promotions",
     icon: Tag,
+  },
+  {
+    title: "Smart Pricing",
+    href: "/smart-pricing",
+    icon: Sparkles,
   },
   {
     title: "Avis",
