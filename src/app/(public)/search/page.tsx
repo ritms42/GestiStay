@@ -38,29 +38,14 @@ export default async function SearchPage({
     .eq("status", "published")
     .order("created_at", { ascending: false })
 
-  if (params.city) {
-    query = query.ilike("city", `%${params.city}%`)
-  }
-
-  if (params.guests) {
-    query = query.gte("max_guests", parseInt(params.guests))
-  }
-
-  if (params.type) {
-    query = query.eq("property_type", params.type)
-  }
-
-  if (params.bedrooms) {
-    query = query.gte("bedrooms", parseInt(params.bedrooms))
-  }
-
-  if (params.bathrooms) {
-    query = query.gte("bathrooms", parseInt(params.bathrooms))
-  }
+  if (params.city) query = query.ilike("city", `%${params.city}%`)
+  if (params.guests) query = query.gte("max_guests", parseInt(params.guests))
+  if (params.type) query = query.eq("property_type", params.type)
+  if (params.bedrooms) query = query.gte("bedrooms", parseInt(params.bedrooms))
+  if (params.bathrooms) query = query.gte("bathrooms", parseInt(params.bathrooms))
 
   const { data: properties } = await query.limit(50)
 
-  // Filter by price and amenities client-side since pricing is a separate table
   let filtered: PropertyWithRelations[] = (properties as PropertyWithRelations[]) || []
 
   if (params.min_price || params.max_price) {
@@ -81,11 +66,11 @@ export default async function SearchPage({
   }
 
   const title = params.city
-    ? `Logements a ${params.city}`
+    ? `Logements à ${params.city}`
     : "Tous les logements"
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)]">
+    <>
       {/* Leaflet CSS */}
       <link
         rel="stylesheet"
@@ -93,59 +78,64 @@ export default async function SearchPage({
         crossOrigin=""
       />
 
-      {/* Search bar */}
-      <div className="border-b bg-background">
-        <div className="container mx-auto px-4 py-3">
-          <form className="flex flex-col md:flex-row gap-2.5">
-            <div className="flex-1">
-              <CityAutocomplete
-                name="city"
-                defaultValue={params.city || ""}
-                placeholder="Ville..."
+      {/* Full-height container that fills available space */}
+      <div className="flex flex-col" style={{ height: "calc(100vh - 65px)" }}>
+        {/* Search bar - compact */}
+        <div className="border-b bg-background shrink-0">
+          <div className="container mx-auto px-4 py-2">
+            <form className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1 min-w-0">
+                <CityAutocomplete
+                  name="city"
+                  defaultValue={params.city || ""}
+                  placeholder="Ville..."
+                />
+              </div>
+              <Input
+                name="check_in"
+                type="date"
+                defaultValue={params.check_in}
+                className="sm:w-36"
               />
-            </div>
-            <Input
-              name="check_in"
-              type="date"
-              defaultValue={params.check_in}
-              className="md:w-40"
-            />
-            <Input
-              name="check_out"
-              type="date"
-              defaultValue={params.check_out}
-              className="md:w-40"
-            />
-            <Input
-              name="guests"
-              type="number"
-              min={1}
-              defaultValue={params.guests}
-              placeholder="Voyageurs"
-              className="md:w-28"
-            />
-            <Button type="submit">
-              <Search className="h-4 w-4 mr-2" />
-              Rechercher
-            </Button>
-          </form>
+              <Input
+                name="check_out"
+                type="date"
+                defaultValue={params.check_out}
+                className="sm:w-36"
+              />
+              <Input
+                name="guests"
+                type="number"
+                min={1}
+                defaultValue={params.guests}
+                placeholder="Voyageurs"
+                className="sm:w-28"
+              />
+              <Button type="submit">
+                <Search className="h-4 w-4 mr-2" />
+                Rechercher
+              </Button>
+            </form>
+          </div>
+        </div>
+
+        {/* Main content fills remaining height */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <SearchResults
+            properties={filtered}
+            currentFilters={{
+              type: params.type,
+              min_price: params.min_price,
+              max_price: params.max_price,
+              bedrooms: params.bedrooms,
+              bathrooms: params.bathrooms,
+              amenities: params.amenities,
+            }}
+            resultsCount={filtered.length}
+            title={title}
+          />
         </div>
       </div>
-
-      {/* Main content: split view handled by client component */}
-      <SearchResults
-        properties={filtered}
-        currentFilters={{
-          type: params.type,
-          min_price: params.min_price,
-          max_price: params.max_price,
-          bedrooms: params.bedrooms,
-          bathrooms: params.bathrooms,
-          amenities: params.amenities,
-        }}
-        resultsCount={filtered.length}
-        title={title}
-      />
-    </div>
+    </>
   )
 }
