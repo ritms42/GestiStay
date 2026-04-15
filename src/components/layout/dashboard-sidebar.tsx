@@ -11,6 +11,7 @@ import {
   MessageSquare,
   BotMessageSquare,
   BarChart3,
+  TrendingUp,
   CreditCard,
   Settings,
   ChevronLeft,
@@ -83,6 +84,11 @@ const navItems = [
     title: "Revenus",
     href: "/revenue",
     icon: BarChart3,
+  },
+  {
+    title: "Analytics",
+    href: "/analytics",
+    icon: TrendingUp,
   },
   {
     title: "Paiements",

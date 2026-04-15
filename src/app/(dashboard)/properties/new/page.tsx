@@ -99,12 +99,40 @@ export default function NewPropertyPage() {
       } = await supabase.auth.getUser()
       if (!user) throw new Error("Non connecté")
 
+      // Geocode address (best-effort, non-blocking)
+      let latitude: number | null = null
+      let longitude: number | null = null
+      try {
+        const geoRes = await fetch("/api/geocode", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            address: data.address,
+            city: data.city,
+            postal_code: data.postal_code,
+            country: data.country,
+          }),
+        })
+        if (geoRes.ok) {
+          const geo = (await geoRes.json()) as {
+            latitude: number
+            longitude: number
+          }
+          latitude = geo.latitude
+          longitude = geo.longitude
+        }
+      } catch {
+        // ignore — property is still created without coords
+      }
+
       // Create property
       const { data: property, error: propError } = await supabase
         .from("properties")
         .insert({
           host_id: user.id,
           ...data,
+          latitude,
+          longitude,
           amenities: selectedAmenities,
           status: "draft",
         })

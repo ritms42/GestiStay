@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { PropertyCard } from "@/components/properties/property-card"
 import Link from "next/link"
 import { Plus, Building2 } from "lucide-react"
+import { GeocodeBackfillButton } from "@/components/properties/geocode-backfill-button"
 
 export const metadata = { title: "Mes biens" }
 
@@ -27,12 +28,15 @@ export default async function PropertiesPage() {
             Gérez vos propriétés et annonces
           </p>
         </div>
-        <Button asChild>
-          <Link href="/properties/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Ajouter un bien
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <GeocodeBackfillButton />
+          <Button asChild>
+            <Link href="/properties/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Ajouter un bien
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {properties && properties.length > 0 ? (

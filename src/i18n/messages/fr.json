@@ -294,5 +294,19 @@
     "privacy": "Politique de confidentialité",
     "contact": "Contact",
     "copyright": "Tous droits réservés."
+  },
+  "analytics": {
+    "totalRevenue": "Revenus totaux",
+    "totalBookings": "Réservations totales",
+    "avgBookingValue": "Panier moyen",
+    "avgOccupancy": "Taux d'occupation moyen",
+    "revenueForecast": "Prévisions de revenus",
+    "occupancyRate": "Taux d'occupation",
+    "topProperties": "Top biens performants",
+    "nextMonths": "Prochains mois",
+    "actualRevenue": "Revenus réels",
+    "predictedRevenue": "Revenus prévus",
+    "trend": "Tendance",
+    "monthsAhead": "Mois à venir"
   }
 }
