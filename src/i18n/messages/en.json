@@ -294,5 +294,19 @@
     "privacy": "Privacy policy",
     "contact": "Contact",
     "copyright": "All rights reserved."
+  },
+  "analytics": {
+    "totalRevenue": "Total revenue",
+    "totalBookings": "Total bookings",
+    "avgBookingValue": "Average booking value",
+    "avgOccupancy": "Average occupancy",
+    "revenueForecast": "Revenue forecast",
+    "occupancyRate": "Occupancy rate",
+    "topProperties": "Top performing properties",
+    "nextMonths": "Next months",
+    "actualRevenue": "Actual revenue",
+    "predictedRevenue": "Predicted revenue",
+    "trend": "Trend",
+    "monthsAhead": "Months ahead"
   }
 }
