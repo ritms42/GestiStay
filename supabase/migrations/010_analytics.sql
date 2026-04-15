@@ -84,7 +84,7 @@ agg AS (
 props AS (
   SELECT host_id, COUNT(*)::int AS active_properties
   FROM properties
-  WHERE status = 'active'
+  WHERE status = 'published'
   GROUP BY host_id
 )
 SELECT
